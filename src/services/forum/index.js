@@ -1,4 +1,5 @@
 const app = require("express").Router()
+const forumModel = require("../../schemas/forumModel")
 
 app.get('/', (req, res, next) => {
     try {

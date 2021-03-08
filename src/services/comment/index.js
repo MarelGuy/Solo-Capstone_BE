@@ -1,4 +1,5 @@
 const app = require("express").Router()
+const commentModel = require("../../schemas/commentModel")
 
 app.get('/', (req, res, next) => {
     try {

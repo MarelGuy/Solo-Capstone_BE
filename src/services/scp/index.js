@@ -1,4 +1,5 @@
 const app = require("express").Router()
+const scpModel = require("../../schemas/scpModel")
 
 app.get('/', (req, res, next) => {
     try {

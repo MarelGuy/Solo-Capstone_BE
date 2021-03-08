@@ -6,6 +6,7 @@ const forumSchema = new mongoose.Schema(
         title: { type: String, required: true },
         subTitle: { type: String, required: true },
         content: { type: String, required: true },
+        categories: [{ type: String, required: true, min: 1 }]
     },
     {
         timestamps: true

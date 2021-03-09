@@ -6,7 +6,7 @@ const scpSchema = new mongoose.Schema({
         ref: "users",
         required: true
     },
-    Item: {
+    item: {
         type: String,
         required: true,
         match: [/SCP-\w+/],
@@ -51,9 +51,11 @@ const scpSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    containmentProcedures: {
+        type: String,
+    },
     image: {
         type: String,
-        required: true
     },
     likes: [{
         userId: mongoose.Types.ObjectId

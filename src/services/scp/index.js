@@ -35,6 +35,21 @@ app.post('/', async (req, res, next) => {
     }
 });
 
+app.post('/:id/like', async (req, res, next) => {
+    try {
+        await scpModel.findByIdAndUpdate(req.params.id, {
+            $push:
+            {
+                likes: req.body
+            }
+        })
+        res.status(201).send("scp liked!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
 app.put('/:id', async (req, res, next) => {
     try {
         await scpModel.findByIdAndUpdate(req.params.id, req.body)

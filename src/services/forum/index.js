@@ -4,12 +4,11 @@ const forumModel = require("../../schemas/forumModel")
 app.get('/', async (req, res, next) => {
     try {
         const forum = await forumModel.find().populate("user")
-        // if (forum.lenth === 0) {
-        //     res.status(404).send("Error 404, maybe there aren't any forums in the db?")
-        // } else {
-        //     res.status(200).send(forum)
-        // }
-        console.log(forum)
+        if (forum.lenth === 0) {
+            res.status(404).send("Error 404, maybe there aren't any forums in the db?")
+        } else {
+            res.status(200).send(forum)
+        }
         res.end()
     } catch (err) {
         console.log(err);

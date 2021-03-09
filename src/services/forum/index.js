@@ -36,6 +36,20 @@ app.post('/', async (req, res, next) => {
         next(err);
     }
 });
+app.post('/:id/comment', async (req, res, next) => {
+    try {
+        await forumModel.findByIdAndUpdate(req.params.id, {
+            $push:
+            {
+                comments: req.body
+            }
+        })
+        res.status(201).send("scp commented!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
 
 app.put('/:id', async (req, res, next) => {
     try {

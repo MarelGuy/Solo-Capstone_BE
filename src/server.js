@@ -38,19 +38,13 @@ app.use(catchAllHandler);
 
 
 mongoose
-    .connect(
-        process.env.MONGO_CONNECTION,
-        {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useFindAndModify: false,
-            useCreateIndex: true,
-        },
-        { autoIndex: false }
-    )
+    .connect(process.env.MONGO_CONNECTION, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
     .then(() =>
-        app.listen(port || 5000, () => {
-            console.log("Running on port", port);
+        app.listen(port, () => {
+            console.log("Running on port", port)
         })
     )
-    .catch((err) => console.log(err));
+    .catch(err => console.log(err))

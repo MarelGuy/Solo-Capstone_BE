@@ -1,13 +1,27 @@
 const app = require("express").Router()
 const scpModel = require("../../schemas/scpModel")
 
+const multer = require("multer")
+const { CloudinaryStorage } = require("multer-storage-cloudinary")
+const cloudinary = require("../../utils/cloudinary")
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: process.env.FOLDER_NAME
+    }
+})
+const multerCloudinary = multer({
+    "storage": storage
+})
+
 app.get('/', async (req, res, next) => {
     try {
-        const scp = await scpModel.find().populate("user")
-        if (scp.lenth === 0) {
+        const SCP = await scpModel.find().populate("user")
+        if (SCP.lenth === 0) {
             res.status(404).send("Error 404, maybe there aren't any scps in the db?")
         } else {
-            res.status(200).send(scp)
+            res.status(200).send(SCP)
         }
     } catch (err) {
         console.log(err);
@@ -17,18 +31,30 @@ app.get('/', async (req, res, next) => {
 
 app.get('/:id', async (req, res, next) => {
     try {
-        const scp = await scpModel.findById(req.params.id).populate("user")
-        res.status(200).send(scp)
+        const SCP = await scpModel.findById(req.params.id).populate("user")
+        res.status(200).send(SCP)
     } catch (err) {
         console.log(err);
         next(err);
     }
 });
 
-app.post('/', async (req, res, next) => {
+app.post('/', multerCloudinary.single("image"), async (req, res, next) => {
     try {
-        await new scpModel(req.body).save()
-        res.status(201).send("scp created!")
+        const { _id } = await new scpModel(req.body).save()
+        console.log(_id)
+        const newScp = await scpModel.findByIdAndUpdate(_id, {
+            $set: {
+                image: req.file.path,
+            }
+        },
+            {
+                runValidators: true,
+                new: true
+            }
+        );
+        res.status(201).send("SCP created!")
+        res.end()
     } catch (err) {
         console.log(err);
         next(err);
@@ -43,7 +69,7 @@ app.post('/:id/like', async (req, res, next) => {
                 likes: req.body
             }
         })
-        res.status(201).send("scp liked!")
+        res.status(201).send("SCP liked!")
     } catch (err) {
         console.log(err);
         next(err);
@@ -53,7 +79,7 @@ app.post('/:id/like', async (req, res, next) => {
 app.put('/:id', async (req, res, next) => {
     try {
         await scpModel.findByIdAndUpdate(req.params.id, req.body)
-        res.status(201).send("scp updated!")
+        res.status(201).send("SCP updated!")
     } catch (err) {
         console.log(err);
         next(err);
@@ -63,7 +89,7 @@ app.put('/:id', async (req, res, next) => {
 app.delete('/:id', async (req, res, next) => {
     try {
         await scpModel.findByIdAndDelete(req.params.id, req.body)
-        res.status(201).send("scp deleted!")
+        res.status(201).send("SCP deleted!")
     } catch (err) {
         console.log(err);
         next(err);

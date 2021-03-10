@@ -52,10 +52,10 @@ const scpSchema = new mongoose.Schema({
         required: true
     },
     containmentProcedures: {
-        type: String,
+        type: String
     },
     image: {
-        type: String,
+        type: String
     },
     likes: [{
         userId: mongoose.Types.ObjectId

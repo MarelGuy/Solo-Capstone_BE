@@ -42,8 +42,7 @@ app.get('/:id', async (req, res, next) => {
 app.post('/', multerCloudinary.single("image"), async (req, res, next) => {
     try {
         const { _id } = await new scpModel(req.body).save()
-        console.log(_id)
-        const newScp = await scpModel.findByIdAndUpdate(_id, {
+        await scpModel.findByIdAndUpdate(_id, {
             $set: {
                 image: req.file.path,
             }
@@ -54,12 +53,21 @@ app.post('/', multerCloudinary.single("image"), async (req, res, next) => {
             }
         );
         res.status(201).send("SCP created!")
-        res.end()
     } catch (err) {
         console.log(err);
         next(err);
     }
 });
+
+// app.post('/', async (req, res, next) => {
+//     try {
+//         await new scpModel(req.body).save()
+//         res.status(201).send("SCP created!")
+//     } catch (err) {
+//         console.log(err);
+//         next(err);
+//     }
+// });
 
 app.post('/:id/like', async (req, res, next) => {
     try {

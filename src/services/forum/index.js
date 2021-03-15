@@ -36,20 +36,6 @@ app.post('/', async (req, res, next) => {
         next(err);
     }
 });
-app.post('/:id/comment', async (req, res, next) => {
-    try {
-        await forumModel.findByIdAndUpdate(req.params.id, {
-            $push:
-            {
-                comments: req.body
-            }
-        })
-        res.status(201).send("scp commented!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
 
 app.put('/:id', async (req, res, next) => {
     try {
@@ -69,6 +55,65 @@ app.delete('/:id', async (req, res, next) => {
         console.log(err);
         next(err);
     }
-})
+});
+
+app.get('/:id/comment', async (req, res, next) => {
+    try {
+        const comments = await forumModel.find()
+        res.send(comments.comments)
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+app.post('/:id/comment', async (req, res, next) => {
+    try {
+        await forumModel.findByIdAndUpdate(req.params.id, {
+            $push:
+            {
+                comments: req.body
+            }
+        })
+        res.status(201).send("scp commented!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+app.delete('/:id/comment/:commentId', async (req, res, next) => {
+    try {
+        await forumModel.findByIdAndUpdate(req.params.id, {
+            $pull:
+            {
+                comments: { _id: commentId }
+            }
+        })
+        res.status(201).send("scp commented!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+app.put('/:id/comment/:commentId', async (req, res, next) => {
+    try {
+        const body = req.body
+        await forumModel.findByIdAndUpdate(req.params.id, {
+            $set:
+            {
+                comments: {
+                    _id: commentId,
+                    body
+                }
+            }
+        })
+        res.status(201).send("scp commented!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
 
 module.exports = app

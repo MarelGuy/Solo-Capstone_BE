@@ -1,20 +1,6 @@
 const app = require("express").Router()
 const scpModel = require("../../schemas/scpModel")
 
-const multer = require("multer")
-const { CloudinaryStorage } = require("multer-storage-cloudinary")
-const cloudinary = require("../../utils/cloudinary")
-
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: process.env.FOLDER_NAME
-    }
-})
-const multerCloudinary = multer({
-    "storage": storage
-})
-
 app.get('/', async (req, res, next) => {
     try {
         const SCP = await scpModel.find().populate("user")
@@ -39,50 +25,16 @@ app.get('/:id', async (req, res, next) => {
     }
 });
 
-app.post('/', multerCloudinary.single("image"), async (req, res, next) => {
+app.post('/', async (req, res, next) => {
     try {
         const { _id } = await new scpModel(req.body).save()
-        await scpModel.findByIdAndUpdate(_id, {
-            $set: {
-                image: req.file.path,
-            }
-        },
-            {
-                runValidators: true,
-                new: true
-            }
-        );
-        res.status(201).send("SCP created!")
+        res.status(201).send(_id)
     } catch (err) {
         console.log(err);
         next(err);
     }
 });
 
-// app.post('/', async (req, res, next) => {
-//     try {
-//         await new scpModel(req.body).save()
-//         res.status(201).send("SCP created!")
-//     } catch (err) {
-//         console.log(err);
-//         next(err);
-//     }
-// });
-
-app.post('/:id/like', async (req, res, next) => {
-    try {
-        await scpModel.findByIdAndUpdate(req.params.id, {
-            $push:
-            {
-                likes: req.body
-            }
-        })
-        res.status(201).send("SCP liked!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
 
 app.put('/:id', async (req, res, next) => {
     try {
@@ -103,5 +55,35 @@ app.delete('/:id', async (req, res, next) => {
         next(err);
     }
 })
+
+app.post('/like/:id', async (req, res, next) => {
+    try {
+        await scpModel.findByIdAndUpdate(req.params.id, {
+            $push:
+            {
+                likes: req.body
+            }
+        })
+        res.status(201).send("SCP liked!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+app.delete('/like/:id/:likeId', async (req, res, next) => {
+    try {
+        await scpModel.findByIdAndUpdate(req.params.id, {
+            $pull:
+            {
+                likes: { _id: req.params.likeId }
+            }
+        })
+        res.status(201).send("SCP unliked!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
 
 module.exports = app

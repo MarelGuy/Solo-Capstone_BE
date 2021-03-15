@@ -30,7 +30,7 @@ const forumSchema = new mongoose.Schema({
     categories: [{
         type: String,
         required: true,
-        min: 1
+        max: 3
     }]
 }, {
     timestamps: true

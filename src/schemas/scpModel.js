@@ -9,6 +9,7 @@ const scpSchema = new mongoose.Schema({
     item: {
         type: String,
         required: true,
+        unique: true,
     },
     content: {
         type: String,
@@ -17,16 +18,7 @@ const scpSchema = new mongoose.Schema({
     likes: [{
         userId: mongoose.Types.ObjectId,
     },],
-    linked_Documents: [{
-        title: {
-            type: String,
-            required: true
-        },
-        content: {
-            type: String,
-            required: true
-        }
-    }],
+    linked_Documents: [{ type: mongoose.Types.ObjectId, ref: "docs" }],
 }, {
     timestamps: true,
 });

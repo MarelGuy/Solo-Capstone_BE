@@ -18,7 +18,7 @@ app.get('/', async (req, res, next) => {
 
 app.get('/:id', async (req, res, next) => {
     try {
-        const forum = await forumModel.findById(req.params.id).populate("user")
+        const forum = await forumModel.findById(req.params.id).populate(["user", "comments.userId"])
         res.status(200).send(forum)
 
     } catch (err) {
@@ -29,8 +29,8 @@ app.get('/:id', async (req, res, next) => {
 
 app.post('/', async (req, res, next) => {
     try {
-        await new forumModel(req.body).save()
-        res.status(201).send("Forum created!")
+        const { _id } = await new forumModel(req.body).save()
+        res.status(201).send(_id)
     } catch (err) {
         console.log(err);
         next(err);
@@ -72,10 +72,13 @@ app.post('/:id/comment', async (req, res, next) => {
         await forumModel.findByIdAndUpdate(req.params.id, {
             $push:
             {
-                comments: req.body
+                comments: {
+                    userId: req.body.userId,
+                    content: req.body.content
+                }
             }
         })
-        res.status(201).send("scp commented!")
+        res.status(201).send("forum commented!")
     } catch (err) {
         console.log(err);
         next(err);
@@ -110,6 +113,36 @@ app.put('/:id/comment/:commentId', async (req, res, next) => {
             }
         })
         res.status(201).send("scp commented!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+app.post('/like/:id', async (req, res, next) => {
+    try {
+        await forumModel.findByIdAndUpdate(req.params.id, {
+            $push:
+            {
+                likes: req.body
+            }
+        })
+        res.status(201).send("SCP liked!")
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+app.delete('/like/:id/:likeId', async (req, res, next) => {
+    try {
+        await forumModel.findByIdAndUpdate(req.params.id, {
+            $pull:
+            {
+                likes: { _id: req.params.likeId }
+            }
+        })
+        res.status(201).send("SCP unliked!")
     } catch (err) {
         console.log(err);
         next(err);

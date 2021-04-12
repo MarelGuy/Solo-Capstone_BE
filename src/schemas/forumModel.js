@@ -9,24 +9,30 @@ const forumSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    subTitle: {
-        type: String,
-        required: true
-    },
     content: {
         type: String,
         required: true
     },
     comments: [{
-        userId: {
-            type: mongoose.Schema.Types.ObjectId
-        },
-        content: {
-            type: String
-        }
-    }, {
-        timestamps: true
+        type: new mongoose.Schema(
+            {
+                userId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "users",
+                    required: true
+                },
+                content: {
+                    type: String,
+                    required: true
+                }
+            },
+            {
+                timestamps: true
+            })
     }],
+    likes: [{
+        userId: mongoose.Types.ObjectId,
+    },],
     categories: [{
         type: String,
         required: true,

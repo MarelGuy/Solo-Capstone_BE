@@ -14,7 +14,19 @@ const userSchema = new mongoose.Schema(
                 "Please fill a valid email address",
             ]
         },
-        favourites: [{ scpId: { type: mongoose.Schema.Types.ObjectId, ref: "scps", required: true } }],
+        scpFavourites: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "scps"
+        }],
+        forumFavourites: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "forums"
+        }],
+        docFavourites: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "docs"
+        }],
+        userDesc: String,
         refreshToken: [{ token: { type: String } }],
         avatar: String,
         password: { type: String, required: true },

@@ -17,7 +17,7 @@ app.get('/', async (req, res, next) => {
 
 app.get('/:id', async (req, res, next) => {
     try {
-        const SCP = await scpModel.findById(req.params.id).populate("user")
+        const SCP = await scpModel.findById(req.params.id).populate(["user", "linked_Documents"])
         res.status(200).send(SCP)
     } catch (err) {
         console.log(err);

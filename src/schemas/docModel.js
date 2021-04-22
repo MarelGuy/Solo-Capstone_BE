@@ -15,8 +15,8 @@ const docSchema = new mongoose.Schema({
     },
     for: { type: mongoose.Types.ObjectId },
     likes: [{
-        type: mongoose.Types.ObjectId,
-    }]
+        userId: mongoose.Types.ObjectId,
+    },]
 }, {
     timestamps: true
 })

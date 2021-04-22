@@ -15,6 +15,10 @@ const scpSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    mdContent: {
+        type: String,
+        required: true,
+    },
     likes: [{
         userId: mongoose.Types.ObjectId,
     },],

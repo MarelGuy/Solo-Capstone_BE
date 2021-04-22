@@ -1,5 +1,6 @@
 const app = require("express").Router()
 const forumModel = require("../../schemas/forumModel")
+const { authorize } = require("../../utils/middleware")
 
 app.get('/', async (req, res, next) => {
     try {
@@ -119,30 +120,28 @@ app.put('/:id/comment/:commentId', async (req, res, next) => {
     }
 });
 
-app.post('/like/:id', async (req, res, next) => {
+app.post('/like/:id', authorize, async (req, res, next) => {
     try {
-        await forumModel.findByIdAndUpdate(req.params.id, {
-            $push:
-            {
-                likes: req.body
-            }
-        })
-        res.status(201).send("SCP liked!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
-
-app.delete('/like/:id/:likeId', async (req, res, next) => {
-    try {
-        await forumModel.findByIdAndUpdate(req.params.id, {
-            $pull:
-            {
-                likes: { _id: req.params.likeId }
-            }
-        })
-        res.status(201).send("SCP unliked!")
+        const forum = await forumModel.findOne({ _id: req.params.id })
+        if (forum.likes.findIndex(like => like.userId.toString() === req.user._id.toString()) === -1) {
+            await forumModel.findByIdAndUpdate(req.params.id, {
+                $push:
+                {
+                    likes: req.body
+                }
+            })
+            const forum_updated = await forumModel.findOne({ _id: req.params.id }).populate(["linked_Documents", "user"])
+            return res.send(forum_updated)
+        } else {
+            await forumModel.findByIdAndUpdate(req.params.id, {
+                $pull:
+                {
+                    likes: { userId: req.user._id }
+                }
+            })
+            const forum_updated = await forumModel.findOne({ _id: req.params.id }).populate(["linked_Documents", "user"])
+            return res.send(forum_updated)
+        }
     } catch (err) {
         console.log(err);
         next(err);

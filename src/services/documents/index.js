@@ -1,5 +1,6 @@
 const docModel = require("../../schemas/docModel")
 const scpModel = require("../../schemas/scpModel")
+const { authorize } = require("../../utils/middleware")
 const app = require("express").Router()
 
 app.get('/', async (req, res, next) => {
@@ -70,30 +71,28 @@ app.delete('/:id', async (req, res, next) => {
     }
 })
 
-app.post('/like/:id', async (req, res, next) => {
+app.post('/like/:id', authorize, async (req, res, next) => {
     try {
-        await docModel.findByIdAndUpdate(req.params.id, {
-            $push:
-            {
-                likes: req.body
-            }
-        })
-        res.status(201).send("doc liked!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
-
-app.delete('/like/:id/:likeId', async (req, res, next) => {
-    try {
-        await docModel.findByIdAndUpdate(req.params.id, {
-            $pull:
-            {
-                likes: { _id: req.params.likeId }
-            }
-        })
-        res.status(201).send("doc unliked!")
+        const doc = await docModel.findOne({ _id: req.params.id })
+        if (doc.likes.findIndex(like => like.userId.toString() === req.user._id.toString()) === -1) {
+            await docModel.findByIdAndUpdate(req.params.id, {
+                $push:
+                {
+                    likes: req.body
+                }
+            })
+            const doc_updated = await docModel.findOne({ _id: req.params.id }).populate(["linked_Documents", "user"])
+            return res.send(doc_updated)
+        } else {
+            await docModel.findByIdAndUpdate(req.params.id, {
+                $pull:
+                {
+                    likes: { userId: req.user._id }
+                }
+            })
+            const doc_updated = await docModel.findOne({ _id: req.params.id }).populate(["linked_Documents", "user"])
+            return res.send(doc_updated)
+        }
     } catch (err) {
         console.log(err);
         next(err);

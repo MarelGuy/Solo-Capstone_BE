@@ -130,90 +130,84 @@ app.put('/:id', async (req, res, next) => {
     }
 });
 
-app.post('/fav/scp/:userId', async (req, res, next) => {
+app.post('/fav/scp/:scpId', authorize, async (req, res, next) => {
     try {
-        await userModel.findByIdAndUpdate(req.params.userId, {
-            $push:
-            {
-                scpFavourites: req.body
-            }
-        })
-        res.status(201).send("SCP favourited!")
+        const user = await userModel.findOne({ _id: req.user._id })
+        if (user.scpFavourites.findIndex(fav => fav.toString() === req.params.scpId.toString()) === -1) {
+            await userModel.findByIdAndUpdate(req.user._id, {
+                $push:
+                {
+                    scpFavourites: req.params.scpId
+                }
+            })
+            const user_updated = await userModel.findOne({ _id: req.user._id }).populate("user")
+            return res.send(user_updated)
+        } else {
+            await userModel.findByIdAndUpdate(req.user._id, {
+                $pull:
+                {
+                    scpFavourites: req.params.scpId
+                }
+            })
+            const user_updated = await userModel.findOne({ _id: req.user._id }).populate("user")
+            return res.send(user_updated)
+        }
     } catch (err) {
         console.log(err);
         next(err);
     }
 });
 
-app.delete('/fav/scp/:userId/:favId', async (req, res, next) => {
+app.post('/fav/forum/:forumId', authorize, async (req, res, next) => {
     try {
-        await userModel.findByIdAndUpdate(req.params.userId, {
-            $pull:
-            {
-                scpFavourites: req.params.favId
-            }
-        })
-        res.status(201).send("SCP unfavourited!")
+        const user = await userModel.findOne({ _id: req.user._id })
+        if (user.forumFavourites.findIndex(fav => fav.toString() === req.params.forumId.toString()) === -1) {
+            await userModel.findByIdAndUpdate(req.user._id, {
+                $push:
+                {
+                    forumFavourites: req.params.forumId
+                }
+            })
+            const user_updated = await userModel.findOne({ _id: req.user._id }).populate("user")
+            return res.send(user_updated)
+        } else {
+            await userModel.findByIdAndUpdate(req.user._id, {
+                $pull:
+                {
+                    forumFavourites: req.params.forumId
+                }
+            })
+            const user_updated = await userModel.findOne({ _id: req.user._id }).populate("user")
+            return res.send(user_updated)
+        }
     } catch (err) {
         console.log(err);
         next(err);
     }
 });
 
-app.post('/fav/forum/:userId', async (req, res, next) => {
+app.post('/fav/doc/:docId', authorize, async (req, res, next) => {
     try {
-        await userModel.findByIdAndUpdate(req.params.userId, {
-            $push:
-            {
-                forumFavourites: req.body
-            }
-        })
-        res.status(201).send("forum favourited!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
-
-app.delete('/fav/forum/:userId/:favId', async (req, res, next) => {
-    try {
-        await userModel.findByIdAndUpdate(req.params.userId, {
-            $pull:
-            {
-                forumFavourites: req.params.favId
-            }
-        })
-        res.status(201).send("forum unfavourited!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
-
-app.post('/fav/doc/:userId', async (req, res, next) => {
-    try {
-        await userModel.findByIdAndUpdate(req.params.userId, {
-            $push:
-            {
-                docFavourites: req.body
-            }
-        })
-        res.status(201).send("document favourited!")
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-});
-
-app.delete('/fav/doc/:userId/:favId', async (req, res, next) => {
-    try {
-        await userModel.findByIdAndUpdate(req.params.userId, {
-            $pull:
-            {
-                docFavourites: req.params.favId
-            }
-        })
-        res.status(201).send("document unfavourited!")
+        const user = await userModel.findOne({ _id: req.user._id })
+        if (user.docFavourites.findIndex(fav => fav.toString() === req.params.docId.toString()) === -1) {
+            await userModel.findByIdAndUpdate(req.user._id, {
+                $push:
+                {
+                    docFavourites: req.params.docId
+                }
+            })
+            const user_updated = await userModel.findOne({ _id: req.user._id }).populate("user")
+            return res.send(user_updated)
+        } else {
+            await userModel.findByIdAndUpdate(req.user._id, {
+                $pull:
+                {
+                    docFavourites: req.params.docId
+                }
+            })
+            const user_updated = await userModel.findOne({ _id: req.user._id }).populate("user")
+            return res.send(user_updated)
+        }
     } catch (err) {
         console.log(err);
         next(err);
@@ -223,8 +217,9 @@ app.delete('/fav/doc/:userId/:favId', async (req, res, next) => {
 app.put("/add-desc/:id", async (req, res, next) => {
     try {
         await userModel.findByIdAndUpdate(req.params.id, {
-            userDesc: req.body
+            userDesc: req.body.userDesc
         })
+        res.status(201).send("description added!")
     } catch (err) {
         console.log(err);
         next(err);
